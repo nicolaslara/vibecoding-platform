@@ -19,8 +19,8 @@ package = false
 target-version = "py312"
 line-length = 120
 # slides/vibecode_compact.py is a slide input: the builder selects exact source lines, and lines stay under
-# 92 columns so they fit the slide's code column. notes/experiments are dated scratch scripts kept as they ran.
-extend-exclude = ["slides/vibecode_compact.py", "notes/experiments", "dist"]
+# 92 columns so they fit the slide's code column.
+extend-exclude = ["slides/vibecode_compact.py", "dist"]
 
 [tool.ruff.lint.per-file-ignores]
 "slides/build.py" = ["E402", "E741"]
