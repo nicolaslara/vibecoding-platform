@@ -86,7 +86,11 @@ def boot(user):
     if sandbox:
         print("running", user, sandbox.object_id)
         return sandbox
-    return start(user, last_filesystem(user) if turns_of.get(user) else base)
+    try:
+        return start(user, last_filesystem(user) if turns_of.get(user) else base)
+    except modal.exception.AlreadyExistsError:  # a visit to their address is starting one right now
+        time.sleep(1)
+        return boot(user)
 
 
 def start(user, image):
@@ -112,12 +116,10 @@ def start(user, image):
 
 
 def preview(sandbox, user):
-    """The link to the user's app.
+    """The user's own address: it stays the same, and a visit wakes their Sandbox."""
+    import link  # here and not at the top: link.py imports this file
 
-    It is the address of this one Sandbox, with a connect token in it, because no port is public.
-    """
-    access = sandbox.create_connect_token(user_metadata={"user": user})
-    return f"{access.url}/?_modal_connect_token={access.token}"
+    return link.address(user)
 
 
 def ask():

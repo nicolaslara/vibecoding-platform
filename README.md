@@ -1,33 +1,32 @@
-# Chapter 6, step 3: fork, a Sandbox from someone else's state
+# Chapter 7, optional, step 1: an address per user, which finds or wakes their Sandbox
 
-Branches `ch6.3-fork` and `ch6-undo`: two names for the same commit.
-Before: `ch6.2-undo`. Next: `ch7.1-http`.
+Branch `ch7.1-http`. Before: `ch6-undo`. Next: `ch7.2-websocket`.
 
-A new command, `fork`, takes a Snapshot of one user's running Sandbox and
-starts another user's Sandbox from it. The first keeps running. The copy gets
-her list of turns too, so it can undo. That is the end of chapter 6, undo a
-message and fork a project.
+A connect-token link changes every time the Sandbox wakes, and it carries a
+token. A new file, `code/link.py`, defines a small App per user with one web
+Function, and deploys it at their first chat. Modal gives the Function a host
+name of its own: the user's address. For each request it finds the Sandbox or
+wakes it, then passes the request on. From here on, `chat` always prints that
+address.
 
 ## Run it
 
 ```sh
 cd code
 uv run vibecode.py reset alice
-uv run vibecode.py chat alice
-> Change the heading in src/App.jsx to say exactly: Alice
+uv run vibecode.py chat alice     # new alice sb-…, open https://…--vibecode-alice.….modal.run
 >
-uv run vibecode.py fork alice bob     # running alice sb-…, new bob sb-…, bob's link
-uv run vibecode.py chat bob           # bob changes his copy
-> Change the heading in src/App.jsx to say exactly: Bob
->
-modal shell <bob's sb-…> -c 'grep h1 /project/app/src/App.jsx'       # his file
-modal shell <alice's sb-…> -c 'grep h1 /project/app/src/App.jsx'     # then hers
+uv run vibecode.py reset alice    # end her Sandbox: nothing runs for alice now
+curl <her address>                # then visit her address
+uv run vibecode.py chat alice     # running alice sb-…: the visit started a Sandbox
 ```
 
-bob gets alice's project, and changes to his do not reach hers: the first
-`modal shell` prints `return <h1>Bob</h1>`, the second `return <h1>Alice</h1>`.
-A Sandbox ends after 30 s idle. `chat alice` or `chat bob` brings it back, as a
-new Sandbox with a new id and the same files: use that id.
+The address stays the same, has no token in it, and a visit starts the
+Sandbox: `curl` prints the page's HTML, and the second `chat` finds a Sandbox
+running. Hot reload does not pass yet. That is step 2.
+
+The address is public: anyone who has it can open the app and wake the
+Sandbox. `modal app stop vibecode-alice` takes it down.
 
 Every terminal needs `ENDPOINT_URL`, from chapter 1. After checking out this
 branch, reset the user first, so her Sandbox is one this branch made.
@@ -35,14 +34,14 @@ branch, reset the user first, so her Sandbox is one this branch made.
 ## Test it
 
 ```sh
-uv run checks/ch6_undo.py     # from the repository root
+uv run checks/ch7_1_http.py     # from the repository root
 ```
 
-Done when each undo puts the project back as it was before one message, the
-agent's chat with it, and the fork has the same project in another Sandbox.
+Done when the address is the same before and after the sleep, and a visit
+alone brought the Sandbox back.
 
 ## See what changed
 
 ```sh
-git diff ch6.2-undo ch6-undo -- code
+git diff ch6-undo ch7.1-http -- code
 ```

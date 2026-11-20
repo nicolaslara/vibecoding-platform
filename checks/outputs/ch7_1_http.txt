@@ -1,0 +1,14 @@
+$ uv run link.py linkcheck
+      https://nicolaslara-vibecoding-demo--vibecode-linkcheck.us-east.modal.run/ deployed in 14.6 s
+
+      a first visit    200 12.3 s heading 'Hello from the template' sb-01M7QRH6FZ1MEFERXQZ5ER83K2 <- made by the visit
+      awake            200 3.1 s heading 'Hello from the template'
+      hot reload       refused: InvalidStatus server rejected WebSocket connection: HTTP 403
+      asleep           the Sandbox ended 36 s after the last visit
+      the same address 200 6.0 s heading 'Hello from the template' sb-01M7QRJP5HKBCK04RYXZKGVK3T <- woken by the visit
+
+ok    the address has no token in it
+ok    a visit made the user's first Sandbox
+ok    the page loads through the address
+ok    the hot-reload websocket is not passed on yet
+ok    after the sleep, the same address woke another Sandbox
