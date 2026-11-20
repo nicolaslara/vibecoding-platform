@@ -1,0 +1,27 @@
+$ uv run vibecode.py reset check
+
+$ uv run vibecode.py chat check
+new check sb-01M7QQ2AD8SJYNQ77VAANYW9KH
+hello from a Sandbox
+> 
+
+$ uv run vibecode.py chat check
+running check sb-01M7QQ2AD8SJYNQ77VAANYW9KH
+hello from a Sandbox
+> 
+
+$ uv run vibecode.py reset check-2
+
+$ uv run vibecode.py chat check-2
+new check-2 sb-01M7QQ2CWYPENH58G8MH20T9CE
+hello from a Sandbox
+> 
+
+$ uv run vibecode.py reset check-2
+
+$ uv run vibecode.py reset check
+
+ok    chat started a Sandbox with the user's name
+ok    a second chat found the same Sandbox by name
+ok    another user got a Sandbox of their own
+ok    reset ended it
