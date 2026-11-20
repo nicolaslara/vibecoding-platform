@@ -1,0 +1,41 @@
+$ uv run vibecode.py reset check
+
+$ uv run vibecode.py chat check
+new check sb-01M7N7185K2RNGVNT30BK70AA4
+open https://a-ta-01m7n7185kx5jbm8mbqwk53h8v-irw6b-aicsu3lxv23elz7hr5kybr1q9.w.modal.host/?_modal_connect_token=<token>
+> Change the heading in src/App.jsx to say exactly: Hello workshop
+
+> build · nicolaslara-vibecoding-demo--ep-kimi-k3-server.us-west.modal.direct
+
+→ Read src/App.jsx
+
+← Edit src/App.jsx
+Index: /project/app/src/App.jsx
+===================================================================
+--- /project/app/src/App.jsx
++++ /project/app/src/App.jsx
+@@ -1,5 +1,5 @@
+ import './App.css'
+ 
+ export default function App() {
+-  return <h1>Hello from the template</h1>
++  return <h1>Hello workshop</h1>
+ }
+
+
+Done. The heading in `src/App.jsx` now reads exactly `Hello workshop`. The dev server's hot reload will pick up the change automatically.
+done 7s
+> What does the heading say now? Answer in one line.
+
+> build · nicolaslara-vibecoding-demo--ep-kimi-k3-server.us-west.modal.direct
+
+Hello workshop
+done 4s
+> 
+
+      the project has the new heading: True
+      the model key, read from inside the Sandbox: wk-… <- chapter 4 removes it 
+
+ok    both turns ended well
+ok    the agent's edit is in the project
+ok    the second message was answered from the same chat

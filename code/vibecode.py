@@ -72,6 +72,7 @@ def boot(user):
         readiness_probe=modal.Probe.with_tcp(8080),
         idle_timeout=30,  # it ends 30 s after the last activity
         timeout=3600,  # and after an hour at most
+        secrets=[modal.Secret.from_name("model-token")],  # its AUTHORIZATION_BEARER, as an env var
     )
 
     sandbox.wait_until_ready()
