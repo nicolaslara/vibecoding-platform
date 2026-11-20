@@ -1,29 +1,23 @@
-# Chapter 3, step 1: the agent, in the Image
+# Chapter 3, step 2: one turn of the agent per message
 
-Branch `ch3.1-opencode`. Before: `ch2-serve`. Next: `ch3.2-turn`.
+Branch `ch3.2-turn`. Before: `ch3.1-opencode`. Next: `ch3.3-secret`.
 
-The agent, its config and the model's name are more layers of the same Image:
-the coding agent OpenCode, and `code/opencode.json`, with our Model Endpoint
-as its model and a key read from the environment variable
-`AUTHORIZATION_BEARER`. The template gains `AGENTS.md`, which tells the agent
-about the app. Nothing connects the agent to `chat` yet.
+Every message now runs the agent once, with exec: a process beside the
+entrypoint, in the user's Sandbox. `chat` prints its output in chunks as they
+arrive. If the Sandbox went idle and ended between two messages, `chat` starts
+it again. The model refuses the agent: no key yet. That is the planned end of
+this step.
 
 ## Run it
 
 ```sh
 cd code
-uv run vibecode.py reset alice     # start a fresh Sandbox from the updated Image
+uv run vibecode.py reset alice
 uv run vibecode.py chat alice
-modal shell sb-…                   # in a second terminal, with the Sandbox ID chat printed
-cd /project/app                    # inside the Sandbox
-opencode
+> Change the heading in src/App.jsx to say exactly: Hello workshop
 ```
 
-OpenCode opens inside the Sandbox, in `/project/app`, and names our Model
-Endpoint as its model. This tests the installed agent directly. The next step
-connects it to `chat`. It has no key yet: a prompt typed there is refused
-with `Error: Unauthorized: proxy auth required`. Step 3 gives it one. A Sandbox that is running keeps the Image it started
-from, which is why the reset comes first.
+It prints `Error: Unauthorized: proxy auth required`, then `stopped rc=1`.
 
 Every terminal needs `ENDPOINT_URL`, from chapter 1. After checking out this
 branch, reset the user first, so her Sandbox is one this branch made.
@@ -31,14 +25,14 @@ branch, reset the user first, so her Sandbox is one this branch made.
 ## Test it
 
 ```sh
-uv run checks/ch3_1_opencode.py     # from the repository root
+uv run checks/ch3_2_turn.py     # from the repository root
 ```
 
-Done when the agent's command answers inside the Sandbox and its model is
-ours.
+Done when the agent ran in the Sandbox and the model refused it for lack of a
+key.
 
 ## See what changed
 
 ```sh
-git diff ch2-serve ch3.1-opencode -- code
+git diff ch3.1-opencode ch3.2-turn -- code
 ```

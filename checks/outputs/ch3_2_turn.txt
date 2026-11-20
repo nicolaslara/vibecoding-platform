@@ -1,0 +1,20 @@
+$ uv run vibecode.py reset check
+
+$ uv run vibecode.py chat check
+new check sb-01M7QR19NRR6Z82E90XSB10TE4
+open https://a-ta-01m7qr19nrnsn741a3dndre7av-irw6b-kwimiiajzk3r9dwzp6svak56o.w.modal.host/?_modal_connect_token=<token>
+> Change the heading in src/App.jsx to say exactly: Hello workshop
+
+> build · nicolaslara-vibecoding-demo--ep-kimi-k3-server.us-west.modal.direct
+
+Error: Unauthorized: proxy auth required
+stopped rc=1
+> 
+
+      the project has the new heading: False 
+
+$ uv run vibecode.py reset check
+
+ok    the agent ran inside the Sandbox, with our model
+ok    the model refused it: no key
+ok    nothing changed in the project

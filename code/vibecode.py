@@ -3,12 +3,14 @@
     uv run vibecode.py chat alice    # open the link it prints, then type one message per line
     uv run vibecode.py reset alice   # start over from the template
 
-Each user gets a Sandbox named after them. Its main process is the dev server of their app. The
-Sandbox ends when nobody uses it, and the next command starts a new one from the template.
+Each user gets a Sandbox named after them. Its main process is the dev server of their app, and
+every message runs the coding agent once, inside. The Sandbox ends when nobody uses it, and the
+next command starts a new one from the template.
 """
 
 import os
 import sys
+import time
 from pathlib import Path
 
 import modal
@@ -35,6 +37,12 @@ base = (
         }
     )
 )
+
+# One turn of the agent, as a shell command: $0 is the message.
+#   -c            continue the project's chat, so the agent remembers the earlier messages
+#   < /dev/null   OpenCode waits for as long as its stdin is open
+#   2>&1          OpenCode prints its steps on stderr and only its last message on stdout
+AGENT = 'exec opencode run --auto -c -- "$0" < /dev/null 2>&1'
 
 
 def running(user):
@@ -90,12 +98,24 @@ def ask():
 
 
 def chat(user):
-    """Read messages, one per line."""
+    """Send messages to the agent, one per line, and print what it does."""
     sandbox = boot(user)
     print("open", preview(sandbox, user))
 
     while message := ask():
-        print(f"{user} said: {message}")
+        if sandbox.poll() is not None:  # it went idle and ended while the user was away
+            sandbox = boot(user)
+            print("open", preview(sandbox, user))
+
+        started = time.time()
+        agent = sandbox.exec("sh", "-c", AGENT, message, timeout=600)  # ten minutes at most
+        for chunk in agent.stdout:  # each step, as the agent takes it
+            print(chunk, end="")
+
+        if agent.wait() == 0:
+            print(f"done {time.time() - started:.0f}s")
+        else:
+            print(f"stopped rc={agent.returncode}")
 
 
 def reset(user):
@@ -112,4 +132,4 @@ if __name__ == "__main__":
     try:
         commands[sys.argv[1]](*sys.argv[2:])
     except KeyboardInterrupt:
-        print("\nleft")
+        print("\nleft; a turn in progress finishes in the Sandbox")
