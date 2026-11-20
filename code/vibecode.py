@@ -1,11 +1,13 @@
 """A vibecoding app on Modal Sandboxes: one Sandbox per user, with a coding agent inside.
 
     uv run vibecode.py chat alice    # open the link it prints, then type one message per line
+    uv run vibecode.py undo alice    # take back the last message
     uv run vibecode.py reset alice   # start over from the template
 
 Each user gets a Sandbox named after them. Its main process is the dev server of their app, and
-every message runs the coding agent once, inside. A snapshot is taken before each message.
-The Sandbox ends when nobody uses it, and the next command brings it back from where it ended.
+every message runs the coding agent once, inside. A snapshot is taken before each message. The
+Sandbox ends when nobody uses it, and the next command brings it back from where it ended. Undo
+starts a Sandbox from an earlier snapshot.
 """
 
 import os
@@ -83,14 +85,18 @@ def boot(user):
     if sandbox:
         print("running", user, sandbox.object_id)
         return sandbox
+    return start(user, last_filesystem(user) if turns_of.get(user) else base)
 
+
+def start(user, image):
+    """A new Sandbox for the user, from an Image: the template, where they left off, or a turn."""
     app = modal.App.lookup(APP, create_if_missing=True)
     dev_server = ["npm", "run", "dev"]  # the Sandbox's main process
     sandbox = modal.Sandbox.create(
         *dev_server,
         app=app,
         name=user,
-        image=last_filesystem(user) if turns_of.get(user) else base,
+        image=image,
         workdir="/project/app",
         readiness_probe=modal.Probe.with_tcp(8080),
         idle_timeout=30,  # it ends 30 s after the last activity
@@ -132,7 +138,7 @@ def chat(user):
             sandbox = boot(user)
             print("open", preview(sandbox, user))
 
-        turns = checkpoint(sandbox, user)  # before the message: the state as it was
+        turns = checkpoint(sandbox, user)  # before the message: the state undo goes back to
         started = time.time()
         agent = sandbox.exec("sh", "-c", AGENT, message, timeout=600)  # ten minutes at most
         for chunk in agent.stdout:  # each step, as the agent takes it
@@ -152,6 +158,23 @@ def checkpoint(sandbox, user):
     return turns
 
 
+def undo(user):
+    """Take back the last message: the user's Sandbox starts again, from the state before it."""
+    turns = turns_of.get(user, [])
+    if not turns:
+        print("nothing to undo")
+        return
+
+    before = modal.Image.from_id(turns.pop())
+    sandbox = running(user)
+    if sandbox:
+        sandbox.terminate(wait=True)  # a message that is still running ends with it
+    sandbox = start(user, before)
+    turns_of[user] = turns
+    print("turn", len(turns))
+    print("open", preview(sandbox, user))
+
+
 def reset(user):
     """Back to the template: no Sandbox, no turns."""
     sandbox = running(user)
@@ -161,7 +184,7 @@ def reset(user):
 
 
 if __name__ == "__main__":
-    commands = {"chat": chat, "reset": reset}
+    commands = {"chat": chat, "undo": undo, "reset": reset}
     if len(sys.argv) < 3 or sys.argv[1] not in commands:
         sys.exit(f"usage: vibecode.py {'|'.join(commands)} <user>")
     try:

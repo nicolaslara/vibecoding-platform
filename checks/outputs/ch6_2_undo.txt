@@ -1,0 +1,72 @@
+$ uv run vibecode.py reset check
+
+$ uv run vibecode.py chat check
+new check sb-01M7QR8QE5JMZXSSJ5QY88SKBZ
+open https://a-ta-01m7qr8qe5t6yrwxf8475gpyyv-irw6b-omryg5k2mzm0jg2tv9p7vpnm4.w.modal.host/?_modal_connect_token=<token>
+> Change the heading in src/App.jsx to say exactly: First
+
+> build · nicolaslara-vibecoding-demo--ep-kimi-k3-server.us-west.modal.direct
+
+→ Read src/App.jsx
+
+← Edit src/App.jsx
+Index: /project/app/src/App.jsx
+===================================================================
+--- /project/app/src/App.jsx
++++ /project/app/src/App.jsx
+@@ -1,5 +1,5 @@
+ import './App.css'
+ 
+ export default function App() {
+-  return <h1>Hello from the template</h1>
++  return <h1>First</h1>
+ }
+
+
+Done. The heading in src/App.jsx now says exactly "First".
+turn 1 6s
+> Change the heading in src/App.jsx to say exactly: Second
+
+> build · nicolaslara-vibecoding-demo--ep-kimi-k3-server.us-west.modal.direct
+
+← Edit src/App.jsx
+Index: /project/app/src/App.jsx
+===================================================================
+--- /project/app/src/App.jsx
++++ /project/app/src/App.jsx
+@@ -1,5 +1,5 @@
+ import './App.css'
+ 
+ export default function App() {
+-  return <h1>First</h1>
++  return <h1>Second</h1>
+ }
+
+
+Done. The heading now says exactly "Second".
+turn 2 3s
+> 
+
+$ uv run vibecode.py undo check
+new check sb-01M7QR99JTC5KWHEMQTJTWFVDQ
+turn 1
+open https://a-ta-01m7qr99jthqqn5hdsn5v20yyv-irw6b-ao4eybip4p4k84lukaie1sgg7.w.modal.host/?_modal_connect_token=<token>
+
+      after one undo the heading is First: True | a new Sandbox: True 
+
+$ uv run vibecode.py undo check
+new check sb-01M7QR9GAWENEA59YW5Y6KDY5T
+turn 0
+open https://a-ta-01m7qr9gawg5ww7580fpwpwt5v-irw6b-zgk2a87o4h012ij3bcfjuf3z6.w.modal.host/?_modal_connect_token=<token>
+
+      after two the project is the template: True 
+
+$ uv run vibecode.py undo check
+nothing to undo
+
+$ uv run vibecode.py reset check
+
+ok    two messages changed the project twice
+ok    undo took back the second message only, in a new Sandbox
+ok    a second undo took back the first: the template
+ok    a third has nothing to take back

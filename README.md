@@ -1,12 +1,11 @@
-# Chapter 6, step 1: a Snapshot before every message
+# Chapter 6, step 2: undo, a Sandbox from an earlier state
 
-Branch `ch6.1-turns`. Before: `ch5-snapshots`. Next: `ch6.2-undo`.
+Branch `ch6.2-undo`. Before: `ch6.1-turns`. Next: `ch6.3-fork`.
 
-Before every message, `checkpoint` takes a Filesystem Snapshot: the whole
-filesystem of the running Sandbox, as an Image. The Sandbox keeps running. The
-app's record grows: the record of who has work, from chapter 5, becomes the
-Dict `vibecode-turns`, which holds, per user, the ids of their Snapshots.
-Nothing uses them yet. The next step, undo, does.
+A Snapshot is an Image, so a Sandbox starts from it like from any other.
+Sandbox creation is extracted from `boot` into a function of its own, `start`,
+for undo and fork. A new command, `undo`, restarts the user's Sandbox from the
+state before the last message.
 
 ## Run it
 
@@ -14,17 +13,17 @@ Nothing uses them yet. The next step, undo, does.
 cd code
 uv run vibecode.py reset alice
 uv run vibecode.py chat alice
-> Change the heading in src/App.jsx to say exactly: Saved
-> Add a paragraph under the heading that says exactly: Still here
+> Change the heading in src/App.jsx to say exactly: First
+> Change the heading in src/App.jsx to say exactly: Second
 >
-modal dict get vibecode-turns alice     # the record: one Snapshot per message
-uv run vibecode.py reset alice
-modal dict get vibecode-turns alice     # None
+uv run vibecode.py undo alice     # new alice sb-…, turn 1, a new link
+uv run vibecode.py undo alice     # turn 0: the template
+uv run vibecode.py undo alice     # nothing to undo
 ```
 
-Each turn ends with its number: a line that starts with `turn 1`, then one
-that starts with `turn 2`. The first `modal dict get` prints two Image ids,
-`['im-…', 'im-…']`. After `reset alice` it prints `None`.
+`undo` takes back one message at a time, down to the template. After the first
+`undo` the new link shows the heading `First`. Each `undo` is a new Sandbox,
+so it prints a new link.
 
 Every terminal needs `ENDPOINT_URL`, from chapter 1. After checking out this
 branch, reset the user first, so her Sandbox is one this branch made.
@@ -32,13 +31,13 @@ branch, reset the user first, so her Sandbox is one this branch made.
 ## Test it
 
 ```sh
-uv run checks/ch6_1_turns.py     # from the repository root
+uv run checks/ch6_2_undo.py     # from the repository root
 ```
 
-Done when the Dict holds one Image id per message, and reset forgets them.
+Done when each undo puts the project back as it was before one message.
 
 ## See what changed
 
 ```sh
-git diff ch5-snapshots ch6.1-turns -- code
+git diff ch6.1-turns ch6.2-undo -- code
 ```
