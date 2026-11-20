@@ -1,0 +1,92 @@
+$ uv run vibecode.py reset check
+
+$ uv run vibecode.py chat check
+new check sb-01M7N6D0YTJ4ZQB5MGYG3HYBKR
+open https://a-ta-01m7n6d0ytz6az3r6zcsqkn41v-irw6b-0utifaoj1umdjdiz7acdlzbwc.w.modal.host/?_modal_connect_token=<token>
+> Change the heading in src/App.jsx to say exactly: First
+
+> build · nicolaslara-vibecoding-demo--ep-kimi-k3-server.us-west.modal.direct
+
+→ Read src/App.jsx
+
+← Edit src/App.jsx
+Index: /project/app/src/App.jsx
+===================================================================
+--- /project/app/src/App.jsx
++++ /project/app/src/App.jsx
+@@ -1,5 +1,5 @@
+ import './App.css'
+ 
+ export default function App() {
+-  return <h1>Hello from the template</h1>
++  return <h1>First</h1>
+ }
+
+
+Done. The heading in `src/App.jsx` now says exactly `First`. The dev server on port 8080 will hot-reload the change.
+turn 1 7s
+> Change the heading in src/App.jsx to say exactly: Second
+
+> build · nicolaslara-vibecoding-demo--ep-kimi-k3-server.us-west.modal.direct
+
+← Edit src/App.jsx
+Index: /project/app/src/App.jsx
+===================================================================
+--- /project/app/src/App.jsx
++++ /project/app/src/App.jsx
+@@ -1,5 +1,5 @@
+ import './App.css'
+ 
+ export default function App() {
+-  return <h1>First</h1>
++  return <h1>Second</h1>
+ }
+
+
+Done. The heading now says exactly `Second`.
+turn 2 5s
+> 
+
+$ uv run vibecode.py undo check
+new check sb-01M7N6DN3C8D19ZNP590M43JPB
+turn 1
+open https://a-ta-01m7n6dn3c5f6kkq9y5gbzq0zv-irw6b-e0i8spw43qjz6k783deuko3i9.w.modal.host/?_modal_connect_token=<token>
+
+      after one undo the heading is First: True | a new Sandbox: True 
+
+$ uv run vibecode.py fork check check-fork
+running check sb-01M7N6DN3C8D19ZNP590M43JPB
+new check-fork sb-01M7N6DTZT6D1VXYV89JDH562P
+open https://a-ta-01m7n6dtzt7wjkrrg7tq0p1eev-mkw7u-cnn26upnjn416vwlwdxniqfmn.w.modal.host/?_modal_connect_token=<token>
+
+      the fork has the heading First: True | in a Sandbox of its own: True 
+
+$ uv run vibecode.py reset check-fork
+
+$ uv run vibecode.py undo check
+new check sb-01M7N6E0T1VBERJFE2BG23F1AF
+turn 0
+open https://a-ta-01m7n6e0t1z6b4byr2fgy15s7v-irw6b-x94f2tpr9ttwxecidboecq1aj.w.modal.host/?_modal_connect_token=<token>
+
+      after two the project is the template: True 
+
+$ uv run vibecode.py undo check
+nothing to undo
+
+$ uv run vibecode.py chat check
+running check sb-01M7N6E0T1VBERJFE2BG23F1AF
+open https://a-ta-01m7n6e0t1z6b4byr2fgy15s7v-irw6b-x94f2tpr9ttwxecidboecq1aj.w.modal.host/?_modal_connect_token=<token>
+> What did I ask you to do before this message? If nothing, answer: nothing
+
+> build · nicolaslara-vibecoding-demo--ep-kimi-k3-server.us-west.modal.direct
+
+nothing
+turn 1 7s
+> 
+
+ok    two messages changed the project twice
+ok    undo took back the second message only, in a new Sandbox
+ok    the fork has the same project in a Sandbox of its own
+ok    a second undo took back the first: the template
+ok    a third has nothing to take back
+ok    the agent's chat went back too

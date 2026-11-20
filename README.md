@@ -1,11 +1,12 @@
-# Chapter 6, step 2: undo, a Sandbox from an earlier state
+# Chapter 6, step 3: fork, a Sandbox from someone else's state
 
-Branch `ch6.2-undo`. Before: `ch6.1-turns`. Next: `ch6.3-fork`.
+Branches `ch6.3-fork` and `ch6-undo`: two names for the same commit.
+Before: `ch6.2-undo`. Next: `ch7.1-http`.
 
-A Snapshot is an Image, so a Sandbox starts from it like from any other.
-Sandbox creation is extracted from `boot` into a function of its own, `start`,
-for undo and fork. A new command, `undo`, restarts the user's Sandbox from the
-state before the last message.
+A new command, `fork`, takes a Snapshot of one user's running Sandbox and
+starts another user's Sandbox from it. The first keeps running. The copy gets
+her list of turns too, so it can undo. That is the end of chapter 6, undo a
+message and fork a project.
 
 ## Run it
 
@@ -13,17 +14,20 @@ state before the last message.
 cd code
 uv run vibecode.py reset alice
 uv run vibecode.py chat alice
-> Change the heading in src/App.jsx to say exactly: First
-> Change the heading in src/App.jsx to say exactly: Second
+> Change the heading in src/App.jsx to say exactly: Alice
 >
-uv run vibecode.py undo alice     # new alice sb-…, turn 1, a new link
-uv run vibecode.py undo alice     # turn 0: the template
-uv run vibecode.py undo alice     # nothing to undo
+uv run vibecode.py fork alice bob     # running alice sb-…, new bob sb-…, bob's link
+uv run vibecode.py chat bob           # bob changes his copy
+> Change the heading in src/App.jsx to say exactly: Bob
+>
+modal shell <bob's sb-…> -c 'grep h1 /project/app/src/App.jsx'       # his file
+modal shell <alice's sb-…> -c 'grep h1 /project/app/src/App.jsx'     # then hers
 ```
 
-`undo` takes back one message at a time, down to the template. After the first
-`undo` the new link shows the heading `First`. Each `undo` is a new Sandbox,
-so it prints a new link.
+bob gets alice's project, and changes to his do not reach hers: the first
+`modal shell` prints `return <h1>Bob</h1>`, the second `return <h1>Alice</h1>`.
+A Sandbox ends after 30 s idle. `chat alice` or `chat bob` brings it back, as a
+new Sandbox with a new id and the same files: use that id.
 
 Every terminal needs `ENDPOINT_URL`, from chapter 1. After checking out this
 branch, reset the user first, so her Sandbox is one this branch made.
@@ -31,13 +35,14 @@ branch, reset the user first, so her Sandbox is one this branch made.
 ## Test it
 
 ```sh
-uv run checks/ch6_2_undo.py     # from the repository root
+uv run checks/ch6_undo.py     # from the repository root
 ```
 
-Done when each undo puts the project back as it was before one message.
+Done when each undo puts the project back as it was before one message, the
+agent's chat with it, and the fork has the same project in another Sandbox.
 
 ## See what changed
 
 ```sh
-git diff ch6.1-turns ch6.2-undo -- code
+git diff ch6.2-undo ch6-undo -- code
 ```

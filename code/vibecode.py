@@ -2,12 +2,13 @@
 
     uv run vibecode.py chat alice    # open the link it prints, then type one message per line
     uv run vibecode.py undo alice    # take back the last message
+    uv run vibecode.py fork alice bob   # give bob a copy of alice's project
     uv run vibecode.py reset alice   # start over from the template
 
 Each user gets a Sandbox named after them. Its main process is the dev server of their app, and
 every message runs the coding agent once, inside. A snapshot is taken before each message. The
 Sandbox ends when nobody uses it, and the next command brings it back from where it ended. Undo
-starts a Sandbox from an earlier snapshot.
+and fork start a Sandbox from a snapshot: an earlier one, or someone else's.
 """
 
 import os
@@ -175,6 +176,15 @@ def undo(user):
     print("open", preview(sandbox, user))
 
 
+def fork(user, other):
+    """Give another user a copy of this user's project as it is now, in a Sandbox of their own."""
+    now = boot(user).snapshot_filesystem()
+    reset(other)
+    turns_of[other] = turns_of.get(user, [])
+    sandbox = start(other, now)
+    print("open", preview(sandbox, other))
+
+
 def reset(user):
     """Back to the template: no Sandbox, no turns."""
     sandbox = running(user)
@@ -184,9 +194,9 @@ def reset(user):
 
 
 if __name__ == "__main__":
-    commands = {"chat": chat, "undo": undo, "reset": reset}
+    commands = {"chat": chat, "undo": undo, "fork": fork, "reset": reset}
     if len(sys.argv) < 3 or sys.argv[1] not in commands:
-        sys.exit(f"usage: vibecode.py {'|'.join(commands)} <user>")
+        sys.exit(f"usage: vibecode.py {'|'.join(commands)} <user> [other user]")
     try:
         commands[sys.argv[1]](*sys.argv[2:])
     except KeyboardInterrupt:
