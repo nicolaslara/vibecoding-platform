@@ -1,0 +1,13 @@
+$ uv run vibecode.py reset check
+
+$ uv run vibecode.py chat check
+new check sb-01M7QQ2J948WZA72J1KFMSVF5G
+➜  Local:   http://localhost:8080/
+> 
+
+      in the Sandbox, /project/app holds index.html node_modules package-lock.json package.json src vite.config.js 
+
+$ uv run vibecode.py reset check
+
+ok    the Sandbox started from the Image: the template and its packages are inside
+ok    its main process is the dev server, on port 8080

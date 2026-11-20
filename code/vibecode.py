@@ -1,22 +1,31 @@
 """A vibecoding app on Modal Sandboxes: one Sandbox per user, with a coding agent inside.
 
     uv run vibecode.py chat alice    # starts alice's Sandbox, then type one message per line
-    uv run vibecode.py reset alice   # end alice's Sandbox
+    uv run vibecode.py reset alice   # start over from the template
 
-Each user gets a Sandbox named after them, and chat runs a command in it. The Sandbox ends when
-nobody uses it, and the next command starts a new one.
+Each user gets a Sandbox named after them. Its main process is the dev server of their app. The
+Sandbox ends when nobody uses it, and the next command starts a new one from the template.
 """
 
 import os
 import sys
+from pathlib import Path
 
 import modal
 
+HERE = Path(__file__).parent
 APP = "vibecode"  # every user's Sandbox lives in this App
 
 # The Model Endpoint the agent calls, by its host name: its URL without the https://.
 #   $ export ENDPOINT_URL=$(modal endpoint info kimi-k3 --json | jq -r .service_url)
 MODEL = os.environ["ENDPOINT_URL"].removeprefix("https://")
+
+# What every new user starts from: a Vite template with its packages installed.
+base = (
+    modal.Image.from_registry("node:22-slim")
+    .add_local_dir(HERE / "app", "/project/app", copy=True)
+    .run_commands("cd /project/app && npm ci")
+)
 
 
 def running(user):
@@ -36,9 +45,13 @@ def boot(user):
         return sandbox
 
     app = modal.App.lookup(APP, create_if_missing=True)
+    dev_server = ["npm", "run", "dev"]  # the Sandbox's main process
     sandbox = modal.Sandbox.create(
+        *dev_server,
         app=app,
         name=user,
+        image=base,
+        workdir="/project/app",
         idle_timeout=30,  # it ends 30 s after the last activity
         timeout=3600,  # and after an hour at most
     )
@@ -59,15 +72,17 @@ def ask():
 def chat(user):
     """Read messages, one per line."""
     sandbox = boot(user)
-    hello = sandbox.exec("echo", "hello from a Sandbox")  # a command, run inside it
-    print(hello.stdout.read(), end="")
+    for line in sandbox.stdout:  # the dev server's output, until it says where it listens
+        if "Local:" in line:
+            print(line.strip())
+            break
 
     while message := ask():
         print(f"{user} said: {message}")
 
 
 def reset(user):
-    """End the user's Sandbox: the next chat starts a new one."""
+    """Back to the template: no Sandbox."""
     sandbox = running(user)
     if sandbox:
         sandbox.terminate(wait=True)
