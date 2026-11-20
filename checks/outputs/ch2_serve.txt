@@ -1,0 +1,29 @@
+$ uv run vibecode.py reset check
+
+$ uv run vibecode.py chat check
+new check sb-01M7QQ395KPYNCB905KCC543KY
+open https://a-ta-01m7qq395k2n7t5a7g9e8v5hvv-irw6b-i4jazrq634jif1851qr6yysy7.w.modal.host/?_modal_connect_token=<token>
+> 
+
+      the link, with its token    200 after 0.5 s the page names /src/main.jsx: True
+      the link, without the token 401 
+
+$ uv run vibecode.py chat check
+running check sb-01M7QQ395KPYNCB905KCC543KY
+open https://a-ta-01m7qq395k2n7t5a7g9e8v5hvv-irw6b-i4jazrq634jif1851qr6yysy7.w.modal.host/?_modal_connect_token=<token>
+> 
+
+$ uv run vibecode.py reset check-2
+
+$ uv run vibecode.py chat check-2
+new check-2 sb-01M7QQ3CJEXM35RV8BQBXK14B2
+open https://a-ta-01m7qq3cjebw3dhv4nmv4wqshv-zbap7-71nmrimxcjpf0mazttdczitoj.w.modal.host/?_modal_connect_token=<token>
+> 
+
+$ uv run vibecode.py reset check-2
+
+ok    chat started a Sandbox and printed a link
+ok    the link serves the template app
+ok    without the token the link is refused
+ok    a second chat found the same Sandbox by name
+ok    another user got a Sandbox of their own
