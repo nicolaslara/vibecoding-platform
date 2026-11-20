@@ -23,7 +23,7 @@ import vibecode
 # The Function creates Sandboxes with the code the laptop uses, so it carries the same files.
 image = (
     modal.Image.debian_slim()
-    .pip_install("fastapi[standard]", "httpx")
+    .pip_install("fastapi[standard]", "httpx", "websockets")
     .env({"ENDPOINT_URL": "https://" + vibecode.MODEL})  # vibecode.py reads it there too
     .add_local_python_source("vibecode")
     .add_local_dir(vibecode.HERE / "app", "/root/app")
@@ -45,7 +45,8 @@ def link_for(user):
         import time
 
         import httpx
-        from fastapi import FastAPI, Request, Response
+        import websockets
+        from fastapi import FastAPI, Request, Response, WebSocket
 
         import vibecode
 
@@ -89,6 +90,28 @@ def link_for(user):
                 response.status_code,
                 media_type=response.headers.get("content-type"),
             )
+
+        @web.websocket("/{path:path}")
+        async def websocket(tab: WebSocket):
+            """Hot reload: a websocket from the tab to the dev server, passed both ways."""
+            access = await asyncio.to_thread(sandbox_access)
+            async with websockets.connect(
+                behind(access, tab.url).replace("https://", "wss://"),
+                subprotocols=tab.scope["subprotocols"],
+                additional_headers={"Authorization": f"Bearer {access.token}"},
+            ) as dev_server:
+                await tab.accept(dev_server.subprotocol)
+
+                async def to_the_tab():
+                    async for message in dev_server:
+                        await tab.send_text(message)
+
+                async def to_the_dev_server():
+                    async for message in tab.iter_text():
+                        await dev_server.send(message)
+
+                both = [asyncio.create_task(to_the_tab()), asyncio.create_task(to_the_dev_server())]
+                await asyncio.wait(both, return_when=asyncio.FIRST_COMPLETED)
 
         return web
 

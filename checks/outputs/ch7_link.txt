@@ -1,0 +1,14 @@
+$ uv run link.py linkcheck
+      https://nicolaslara-vibecoding-demo--vibecode-linkcheck.us-east.modal.run/ deployed in 1.9 s
+
+      a first visit    200 7.7 s heading 'Hello from the template' sb-01M7MQ2303GXX3M3JNN5KS5YYM <- made by the visit
+      awake            200 1.9 s heading 'Hello from the template'
+      hot reload       connected, then update /src/App.css 0.0 s after the edit
+      asleep           the Sandbox ended 36 s after the socket closed
+      the same address 200 4.6 s heading 'Hello from the template' sb-01M7MQ3FFR89P3PE8KK7DCCBQ0 <- woken by the visit
+
+ok    the address has no token in it
+ok    a visit made the user's first Sandbox
+ok    the page loads through the address
+ok    hot reload passes through
+ok    after the sleep, the same address woke another Sandbox
