@@ -1,0 +1,61 @@
+$ uv run vibecode.py reset check
+
+$ uv run vibecode.py chat check
+new check sb-01M7SERA40B47FPYE00QD7KEM1
+open https://a-ta-01m7sera40hpdy9n9q8nvtekyv-irw6b-q809170l3zxlim5gvznesaba0.w.modal.host/?_modal_connect_token=<token>
+> Change the heading in src/App.jsx to say exactly: Saved
+
+> build · nicolaslara-vibecoding-demo--ep-kimi-k3-server.us-west.modal.direct
+
+→ Read src/App.jsx
+
+← Edit src/App.jsx
+Index: /project/app/src/App.jsx
+===================================================================
+--- /project/app/src/App.jsx
++++ /project/app/src/App.jsx
+@@ -1,5 +1,5 @@
+ import './App.css'
+ 
+ export default function App() {
+-  return <h1>Hello from the template</h1>
++  return <h1>Saved</h1>
+ }
+
+
+Done — the heading in `src/App.jsx` now says exactly "Saved".
+turn 1 10s
+> Add a paragraph under the heading that says exactly: Still here
+
+> build · nicolaslara-vibecoding-demo--ep-kimi-k3-server.us-west.modal.direct
+
+← Edit src/App.jsx
+Index: /project/app/src/App.jsx
+===================================================================
+--- /project/app/src/App.jsx
++++ /project/app/src/App.jsx
+@@ -1,5 +1,10 @@
+ import './App.css'
+ 
+ export default function App() {
+-  return <h1>Saved</h1>
++  return (
++    <>
++      <h1>Saved</h1>
++      <p>Still here</p>
++    </>
++  )
+ }
+
+
+Done — added a `<p>Still here</p>` right under the heading, wrapped in a fragment so the page keeps working.
+turn 2 7s
+> 
+
+      the turns in the Dict: im-01M7SERCV0PAE6X5GV3HNNCBJG im-01M7SERQHYF2WNFWR9A5CBM83Y 
+
+$ uv run vibecode.py reset check
+
+ok    both turns ended well
+ok    the Dict holds one Image id per message
+ok    reset forgot them

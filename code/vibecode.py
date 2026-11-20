@@ -4,8 +4,8 @@
     uv run vibecode.py reset alice   # start over from the template
 
 Each user gets a Sandbox named after them. Its main process is the dev server of their app, and
-every message runs the coding agent once, inside. The Sandbox ends when nobody uses it, and the
-next command brings it back from where it ended.
+every message runs the coding agent once, inside. A snapshot is taken before each message.
+The Sandbox ends when nobody uses it, and the next command brings it back from where it ended.
 """
 
 import os
@@ -49,8 +49,8 @@ key_added_outside = modal.experimental.OutboundPolicy().with_header_replacement(
     headers={"Authorization": "Bearer $AUTHORIZATION_BEARER"},
 )
 
-# The app's own record: the users who have work to come back to.
-has_work = modal.Dict.from_name("vibecode-users", create_if_missing=True)
+# The app's own record. For each user: one snapshot id per message, taken before that message.
+turns_of = modal.Dict.from_name("vibecode-turns", create_if_missing=True)
 
 # One turn of the agent, as a shell command: $0 is the message.
 #   -c            continue the project's chat, so the agent remembers the earlier messages
@@ -90,7 +90,7 @@ def boot(user):
         *dev_server,
         app=app,
         name=user,
-        image=last_filesystem(user) if has_work.get(user) else base,
+        image=last_filesystem(user) if turns_of.get(user) else base,
         workdir="/project/app",
         readiness_probe=modal.Probe.with_tcp(8080),
         idle_timeout=30,  # it ends 30 s after the last activity
@@ -132,24 +132,32 @@ def chat(user):
             sandbox = boot(user)
             print("open", preview(sandbox, user))
 
-        has_work[user] = True
+        turns = checkpoint(sandbox, user)  # before the message: the state as it was
         started = time.time()
         agent = sandbox.exec("sh", "-c", AGENT, message, timeout=600)  # ten minutes at most
         for chunk in agent.stdout:  # each step, as the agent takes it
             print(chunk, end="")
 
         if agent.wait() == 0:
-            print(f"done {time.time() - started:.0f}s")
+            print(f"turn {len(turns)} {time.time() - started:.0f}s")
         else:
-            print(f"stopped rc={agent.returncode}")
+            print(f"turn {len(turns)} stopped rc={agent.returncode}")
+
+
+def checkpoint(sandbox, user):
+    """Snapshot the Sandbox's filesystem as a new turn and return the user's turns."""
+    snapshot = sandbox.snapshot_filesystem()
+    turns = turns_of.get(user, []) + [snapshot.object_id]
+    turns_of[user] = turns
+    return turns
 
 
 def reset(user):
-    """Back to the template: no Sandbox, no work on record."""
+    """Back to the template: no Sandbox, no turns."""
     sandbox = running(user)
     if sandbox:
         sandbox.terminate(wait=True)
-    has_work.pop(user, None)
+    turns_of.pop(user, None)
 
 
 if __name__ == "__main__":
