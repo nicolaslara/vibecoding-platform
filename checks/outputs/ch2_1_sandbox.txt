@@ -1,0 +1,10 @@
+$ uv run vibecode.py chat check
+new check sb-01M7QQ18AV2P1JTY3DZNP7NRX1
+hello from a Sandbox
+> 
+
+      the Sandbox ended 32 s after its last command 
+
+ok    chat started a Sandbox
+ok    a command answered from inside it
+ok    the Sandbox ended once nothing used it

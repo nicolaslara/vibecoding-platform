@@ -1,50 +1,38 @@
-# Chapter 1: set up an endpoint
+# Chapter 2, step 1: a Sandbox, and a command run in it
 
-Branch `ch1-endpoint`. Before: `ch0-setup`. Next: `ch2.1-sandbox`.
+Branch `ch2.1-sandbox`. Before: `ch1-endpoint`. Next: `ch2.2-name`.
 
-The agent will need a model. You make a proxy token for your Environment, a
-Model Endpoint for Kimi K3, billed per token, and a Secret that holds the
-token. The code gains one line: `MODEL`, read from `ENDPOINT_URL`.
-
-## Set up, in this order
-
-```sh
-modal workspace proxy-tokens create --name vibecoding-demo     # prints wk-… and ws-…, once
-modal workspace proxy-tokens allow wk-… <your Environment>
-export AUTHORIZATION_BEARER=wk-….ws-…                          # the id, a dot, the secret
-modal endpoint create --shared --model moonshotai/Kimi-K3 --name kimi-k3
-modal secret create model-token AUTHORIZATION_BEARER=$AUTHORIZATION_BEARER
-export ENDPOINT_URL=$(modal endpoint info kimi-k3 --json | jq -r .service_url)
-```
-
-- **Let the token into the Environment before you create the Endpoint.** The
-  other order fails with `Create a proxy token to require authentication…`.
-- **Every terminal needs `ENDPOINT_URL` from here on.** Without it the code
-  stops with `KeyError: 'ENDPOINT_URL'`. Without `jq`, copy the URL by hand.
+A Sandbox is an isolated execution environment. `boot` starts one on Modal, in
+an App named `vibecode`, and `chat` runs one command in it via exec and prints
+what it says. The Sandbox ends when nothing has used it for 30 s: that is
+`idle_timeout=30`.
 
 ## Run it
 
 ```sh
-curl $ENDPOINT_URL/v1/chat/completions \
-  -H "Authorization: Bearer $AUTHORIZATION_BEARER" \
-  -d '{"messages": [{"role": "user", "content": "Say hello in one word"}]}'
-curl $ENDPOINT_URL/v1/chat/completions \
-  -d '{"messages": [{"role": "user", "content": "Say hello in one word"}]}'
+cd code
+uv run vibecode.py chat alice
+modal shell sb-…     # in a second terminal, with the Sandbox ID chat printed
 ```
 
-With the token, the model answers in JSON, with `"model":"moonshotai/Kimi-K3"`.
-Without it, the answer is `{"error":"proxy auth required"}`.
+`chat` prints `new alice sb-…`, then `hello from a Sandbox`, then the prompt.
+`modal shell` opens a shell inside that same Sandbox: run it before the
+Sandbox idles out. Every `chat` starts another Sandbox: nothing finds the
+first one again yet.
+
+Every terminal needs `ENDPOINT_URL`, from chapter 1.
 
 ## Test it
 
 ```sh
-uv run checks/ch1_endpoint.py     # from the repository root
+uv run checks/ch2_1_sandbox.py     # from the repository root
 ```
 
-Done when the first call answers 200 and the second 401.
+Done when chat starts a Sandbox, a command answers from inside it, and the
+Sandbox ends once nothing uses it.
 
 ## See what changed
 
 ```sh
-git diff ch0-setup ch1-endpoint -- code
+git diff ch1-endpoint ch2.1-sandbox -- code
 ```
