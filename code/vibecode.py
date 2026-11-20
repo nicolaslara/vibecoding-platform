@@ -5,7 +5,7 @@
 
 Each user gets a Sandbox named after them. Its main process is the dev server of their app, and
 every message runs the coding agent once, inside. The Sandbox ends when nobody uses it, and the
-next command starts a new one from the template.
+next command brings it back from where it ended.
 """
 
 import os
@@ -49,6 +49,9 @@ key_added_outside = modal.experimental.OutboundPolicy().with_header_replacement(
     headers={"Authorization": "Bearer $AUTHORIZATION_BEARER"},
 )
 
+# The app's own record: the users who have work to come back to.
+has_work = modal.Dict.from_name("vibecode-users", create_if_missing=True)
+
 # One turn of the agent, as a shell command: $0 is the message.
 #   -c            continue the project's chat, so the agent remembers the earlier messages
 #   < /dev/null   OpenCode waits for as long as its stdin is open
@@ -65,8 +68,17 @@ def running(user):
     return sandbox if sandbox.poll() is None else None
 
 
+def last_filesystem(user):
+    """The filesystem the user's last Sandbox ended with, or the base when none was kept."""
+    try:
+        last = modal.Sandbox.from_name(APP, user, include_terminated=True)
+        return last._experimental_get_exit_snapshot()
+    except modal.Error:
+        return base
+
+
 def boot(user):
-    """The user's Sandbox: the one that is running, or a new one."""
+    """The user's Sandbox: the one that is running, or a new one from where the last one ended."""
     sandbox = running(user)
     if sandbox:
         print("running", user, sandbox.object_id)
@@ -78,11 +90,12 @@ def boot(user):
         *dev_server,
         app=app,
         name=user,
-        image=base,
+        image=last_filesystem(user) if has_work.get(user) else base,
         workdir="/project/app",
         readiness_probe=modal.Probe.with_tcp(8080),
         idle_timeout=30,  # it ends 30 s after the last activity
         timeout=3600,  # and after an hour at most
+        experimental_options={"enable_exit_snapshot": True},  # its filesystem is kept when it ends
         _experimental_outbound_policy=key_added_outside,  # the model key, added on the way out
     )
 
@@ -119,6 +132,7 @@ def chat(user):
             sandbox = boot(user)
             print("open", preview(sandbox, user))
 
+        has_work[user] = True
         started = time.time()
         agent = sandbox.exec("sh", "-c", AGENT, message, timeout=600)  # ten minutes at most
         for chunk in agent.stdout:  # each step, as the agent takes it
@@ -131,10 +145,11 @@ def chat(user):
 
 
 def reset(user):
-    """Back to the template: no Sandbox."""
+    """Back to the template: no Sandbox, no work on record."""
     sandbox = running(user)
     if sandbox:
         sandbox.terminate(wait=True)
+    has_work.pop(user, None)
 
 
 if __name__ == "__main__":

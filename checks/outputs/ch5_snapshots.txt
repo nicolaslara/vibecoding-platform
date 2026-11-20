@@ -1,0 +1,81 @@
+$ uv run vibecode.py reset check
+
+$ uv run vibecode.py chat check
+new check sb-01M7SEP9FRQC6JDA9J9NFCNKHH
+open https://a-ta-01m7sep9frcjz30jy432z9ya6v-irw6b-l8trkj5qayq5aa47kq7hmeavx.w.modal.host/?_modal_connect_token=<token>
+> Change the heading in src/App.jsx to say exactly: Saved
+
+> build · nicolaslara-vibecoding-demo--ep-kimi-k3-server.us-west.modal.direct
+
+→ Read src/App.jsx
+
+← Edit src/App.jsx
+Index: /project/app/src/App.jsx
+===================================================================
+--- /project/app/src/App.jsx
++++ /project/app/src/App.jsx
+@@ -1,5 +1,5 @@
+ import './App.css'
+ 
+ export default function App() {
+-  return <h1>Hello from the template</h1>
++  return <h1>Saved</h1>
+ }
+
+
+Done — the heading in `src/App.jsx` now says exactly "Saved".
+done 7s
+> 
+
+$ sleep 45   # no tab, no chat: the idle clock runs out
+      sb-01M7SEP9FRQC6JDA9J9NFCNKHH ended 36 s after the chat left
+
+$ uv run vibecode.py chat check
+new check sb-01M7SEQPK034GF1WPBN7N0TQAY
+open https://a-ta-01m7seqpk0m2716cqncknffwgv-irw6b-ugh4f79u5bxep4p85tnkwf3ef.w.modal.host/?_modal_connect_token=<token>
+> Add a paragraph under the heading that says exactly: Still here
+
+> build · nicolaslara-vibecoding-demo--ep-kimi-k3-server.us-west.modal.direct
+
+← Edit src/App.jsx
+Index: /project/app/src/App.jsx
+===================================================================
+--- /project/app/src/App.jsx
++++ /project/app/src/App.jsx
+@@ -1,5 +1,10 @@
+ import './App.css'
+ 
+ export default function App() {
+-  return <h1>Saved</h1>
++  return (
++    <>
++      <h1>Saved</h1>
++      <p>Still here</p>
++    </>
++  )
+ }
+
+
+Done — added a paragraph saying "Still here" under the heading.
+done 7s
+> 
+
+      the Sandbox after the sleep: sb-01M7SEQPK034GF1WPBN7N0TQAY
+      the heading from before the sleep is in it: True 
+
+$ uv run vibecode.py reset check
+
+$ uv run vibecode.py chat check
+new check sb-01M7SER2XY9AR8S1CHSD3QYJ6X
+open https://a-ta-01m7ser2xy2qpefwfgw7hjx43v-irw6b-dfsipnz0ta9jjyey28khhsv6y.w.modal.host/?_modal_connect_token=<token>
+> 
+
+      after a reset the project is the template again: True 
+
+$ uv run vibecode.py reset check
+
+ok    the first Sandbox ended on its own when idle
+ok    the next chat started another Sandbox
+ok    the work from before the sleep is in the new Sandbox
+ok    the agent went on from there
+ok    a reset brings the template back

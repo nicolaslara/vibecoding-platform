@@ -1,30 +1,28 @@
-# Chapter 4: keep the key away from the agent
+# Chapter 5: save the work
 
-Branch `ch4-key-out`. Before: `ch3-agent`. Next: `ch5-snapshots`.
+Branch `ch5-snapshots`. Before: `ch4-key-out`. Next: `ch6.1-turns`.
 
-The Secret never enters the Sandbox. Credential injection with header
-replacement takes its place: an outbound policy, by which Modal adds the key
-outside the Sandbox, to the `Authorization` header of requests for the model's
-host. Inside, `AUTHORIZATION_BEARER` is a placeholder, `added-outside`. The
-agent and its config stay as they are.
+The Sandbox is created with an Exit Snapshot: however it ends, its whole
+filesystem is kept as an Image. `last_filesystem` reads that back, and `boot`
+starts the next Sandbox from it, so the next one starts where the last one
+ended. A Dict named `vibecode-users`, a named key-value store on Modal, is a
+record of who has work, so that `reset` still means the template.
 
 ## Run it
 
 ```sh
 cd code
-uv run vibecode.py reset alice     # her Sandbox from chapter 3 has the key inside
+uv run vibecode.py reset alice
 uv run vibecode.py chat alice
-> Change the heading in src/App.jsx to say exactly: Key is out
->
-uv run python -c "import vibecode; print(vibecode.running('alice').exec('printenv', 'AUTHORIZATION_BEARER').stdout.read())"
+> Change the heading in src/App.jsx to say exactly: Saved
+>                                  # leave, and close the tab
+sleep 45                           # the Sandbox goes idle and ends
+uv run vibecode.py chat alice      # new alice sb-…: another Sandbox, the same project
 ```
 
-The agent still works, and cannot read the key. Leave the chat and keep the
-tab open, so the Sandbox stays up. The last command then prints
-`added-outside`: a placeholder, not the key.
-
-The Sandbox can still reach any host. An outbound policy cannot be combined
-with a list of allowed hosts.
+The second `chat` prints `new alice` with another id, and its link shows the
+heading `Saved`: the work survives the Sandbox. After `reset alice`, the next
+`chat` shows the template again.
 
 Every terminal needs `ENDPOINT_URL`, from chapter 1. After checking out this
 branch, reset the user first, so her Sandbox is one this branch made.
@@ -32,14 +30,14 @@ branch, reset the user first, so her Sandbox is one this branch made.
 ## Test it
 
 ```sh
-uv run checks/ch4_key_out.py     # from the repository root
+uv run checks/ch5_snapshots.py     # from the repository root
 ```
 
-Done when the agent's edit is in the project, the key is not in the Sandbox's
-environment, and a request to the model that carries no key is answered.
+Done when the heading survives the sleep in a new Sandbox, and a reset brings
+the template back.
 
 ## See what changed
 
 ```sh
-git diff ch3-agent ch4-key-out -- code
+git diff ch4-key-out ch5-snapshots -- code
 ```
