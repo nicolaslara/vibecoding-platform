@@ -1,0 +1,16 @@
+$ uv run vibecode.py reset check
+
+$ uv run vibecode.py chat check
+new check sb-01M7QQZPM0T9TF3PESHBD5WG3R
+open https://a-ta-01m7qqzpm0jrcksghj3y3qdvfv-irw6b-g4r51g00oha8e53mxgw3wfrtf.w.modal.host/?_modal_connect_token=<token>
+> 
+
+      in the Sandbox, opencode --version: 1.18.30
+      in the Sandbox, $MODEL: nicolaslara-vibecoding-demo--ep-kimi-k3-server.us-west.modal.direct
+      in the Sandbox, AGENTS.md starts: This is a Vite + React app. The dev server is already runnin 
+
+$ uv run vibecode.py reset check
+
+ok    the agent is installed in the Sandbox
+ok    its model is our Model Endpoint
+ok    the template has the agent's instructions

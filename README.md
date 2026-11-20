@@ -1,25 +1,29 @@
-# Chapter 2, step 5: the link is printed before the app is up, so we add a readiness probe
+# Chapter 3, step 1: the agent, in the Image
 
-Branches `ch2.5-probe` and `ch2-serve`: two names for the same commit.
-Before: `ch2.4-connect`. Next: `ch3.1-opencode`.
+Branch `ch3.1-opencode`. Before: `ch2-serve`. Next: `ch3.2-turn`.
 
-Until now the link was printed before the app was up. The Sandbox gets a
-readiness probe on port 8080, and `wait_until_ready()` returns when the port
-answers, so `chat` waits until the app answers before it prints the link. That
-is the end of chapter 2, serve each user's app: a Sandbox per user, and a link
-that opens the template.
+The agent, its config and the model's name are more layers of the same Image:
+the coding agent OpenCode, and `code/opencode.json`, with our Model Endpoint
+as its model and a key read from the environment variable
+`AUTHORIZATION_BEARER`. The template gains `AGENTS.md`, which tells the agent
+about the app. Nothing connects the agent to `chat` yet.
 
 ## Run it
 
 ```sh
 cd code
-uv run vibecode.py reset alice
-uv run vibecode.py chat alice     # new alice sb-…, then the link
-uv run vibecode.py chat alice     # running alice sb-…, the same link
-uv run vibecode.py chat bob       # another user, another Sandbox and link
+uv run vibecode.py reset alice     # start a fresh Sandbox from the updated Image
+uv run vibecode.py chat alice
+modal shell sb-…                   # in a second terminal, with the Sandbox ID chat printed
+cd /project/app                    # inside the Sandbox
+opencode
 ```
 
-Open the link: the template app. A second `chat` finds the same Sandbox.
+OpenCode opens inside the Sandbox, in `/project/app`, and names our Model
+Endpoint as its model. This tests the installed agent directly. The next step
+connects it to `chat`. It has no key yet: a prompt typed there is refused
+with `Error: Unauthorized: proxy auth required`. Step 3 gives it one. A Sandbox that is running keeps the Image it started
+from, which is why the reset comes first.
 
 Every terminal needs `ENDPOINT_URL`, from chapter 1. After checking out this
 branch, reset the user first, so her Sandbox is one this branch made.
@@ -27,14 +31,14 @@ branch, reset the user first, so her Sandbox is one this branch made.
 ## Test it
 
 ```sh
-uv run checks/ch2_serve.py     # from the repository root
+uv run checks/ch3_1_opencode.py     # from the repository root
 ```
 
-Done when the link serves the template, only with its token, and a second chat
-finds the same Sandbox.
+Done when the agent's command answers inside the Sandbox and its model is
+ours.
 
 ## See what changed
 
 ```sh
-git diff ch2.4-connect ch2-serve -- code
+git diff ch2-serve ch3.1-opencode -- code
 ```

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "modal/{env:MODEL}",
+  "provider": {
+    "modal": {
+      "options": {
+        "baseURL": "https://inference.us-west.modal.direct/v1",
+        "apiKey": "{env:AUTHORIZATION_BEARER}"
+      },
+      "models": { "{env:MODEL}": {} }
+    }
+  }
+}

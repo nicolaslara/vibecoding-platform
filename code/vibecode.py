@@ -20,11 +20,20 @@ APP = "vibecode"  # every user's Sandbox lives in this App
 #   $ export ENDPOINT_URL=$(modal endpoint info kimi-k3 --json | jq -r .service_url)
 MODEL = os.environ["ENDPOINT_URL"].removeprefix("https://")
 
-# What every new user starts from: a Vite template with its packages installed.
+# What every new user starts from: a Vite template with its packages installed, and the OpenCode
+# agent. MODEL is part of the Image: after changing it, `reset` the user.
 base = (
     modal.Image.from_registry("node:22-slim")
     .add_local_dir(HERE / "app", "/project/app", copy=True)
     .run_commands("cd /project/app && npm ci")
+    .run_commands("npm install -g opencode-ai@1.18.30")
+    .add_local_file(HERE / "opencode.json", "/root/.config/opencode/opencode.json", copy=True)
+    .env(
+        {
+            "MODEL": MODEL,  # opencode.json reads it
+            "OPENCODE_DISABLE_MODELS_FETCH": "true",
+        }
+    )
 )
 
 
