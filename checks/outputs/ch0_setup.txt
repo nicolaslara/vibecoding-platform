@@ -1,0 +1,16 @@
+$ modal token info
+      workspace   nicolaslara
+$ echo $MODAL_ENVIRONMENT
+      environment vibecoding-demo 
+
+$ modal shell -c 'echo hello from a Sandbox'
+hello from a Sandbox 
+
+$ uv run vibecode.py chat check
+> hello
+check said: hello
+> 
+
+ok    the modal command is logged in to a workspace
+ok    the application's prompt takes a message
+ok    a Sandbox ran in nicolaslara / vibecoding-demo

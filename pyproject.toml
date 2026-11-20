@@ -1,0 +1,26 @@
+[project]
+name = "vibecoding-platform"
+version = "0.1.0"
+description = "A vibecoding platform on Modal Sandboxes, built in chapters"
+requires-python = ">=3.12"
+dependencies = ["modal>=1.6.3", "pygments==2.20.0"]
+
+[dependency-groups]
+dev = [
+    "pre-commit==3.8.0",
+    "ruff==0.9.6",
+    "websockets>=17.4",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+# slides/vibecode_compact.py is a slide input: the builder selects exact source lines, and lines stay under
+# 92 columns so they fit the slide's code column. notes/experiments are dated scratch scripts kept as they ran.
+extend-exclude = ["slides/vibecode_compact.py", "notes/experiments", "dist"]
+
+[tool.ruff.lint.per-file-ignores]
+"slides/build.py" = ["E402", "E741"]
