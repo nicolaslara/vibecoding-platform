@@ -14,6 +14,7 @@ import time
 from pathlib import Path
 
 import modal
+import modal.experimental
 
 HERE = Path(__file__).parent
 APP = "vibecode"  # every user's Sandbox lives in this App
@@ -33,9 +34,19 @@ base = (
     .env(
         {
             "MODEL": MODEL,  # opencode.json reads it
+            "AUTHORIZATION_BEARER": "added-outside",  # OpenCode wants a key; the real one never comes in
             "OPENCODE_DISABLE_MODELS_FETCH": "true",
         }
     )
+)
+
+# The model key never enters the Sandbox. Modal adds it outside, to requests for the model's host:
+# the gateway that opencode.json calls.
+MODEL_HOST = "inference.us-west.modal.direct"
+key_added_outside = modal.experimental.OutboundPolicy().with_header_replacement(
+    domain=MODEL_HOST,
+    secret=modal.Secret.from_name("model-token"),
+    headers={"Authorization": "Bearer $AUTHORIZATION_BEARER"},
 )
 
 # One turn of the agent, as a shell command: $0 is the message.
@@ -72,7 +83,7 @@ def boot(user):
         readiness_probe=modal.Probe.with_tcp(8080),
         idle_timeout=30,  # it ends 30 s after the last activity
         timeout=3600,  # and after an hour at most
-        secrets=[modal.Secret.from_name("model-token")],  # its AUTHORIZATION_BEARER, as an env var
+        _experimental_outbound_policy=key_added_outside,  # the model key, added on the way out
     )
 
     sandbox.wait_until_ready()

@@ -1,0 +1,37 @@
+$ uv run vibecode.py reset check
+
+$ uv run vibecode.py chat check
+new check sb-01M7MY9WG3T0F0WZ9KCWB4YNME
+open https://a-ta-01m7my9wg3gmwn0f0dwteh62hv-irw6b-g4r51g00oha8e53mxgw3wfrtf.w.modal.host/?_modal_connect_token=<token>
+> Change the heading in src/App.jsx to say exactly: Key is out
+
+> build · nicolaslara-vibecoding-demo--ep-kimi-k3-server.us-west.modal.direct
+
+→ Read src/App.jsx
+
+← Edit src/App.jsx
+Index: /project/app/src/App.jsx
+===================================================================
+--- /project/app/src/App.jsx
++++ /project/app/src/App.jsx
+@@ -1,5 +1,5 @@
+ import './App.css'
+ 
+ export default function App() {
+-  return <h1>Hello from the template</h1>
++  return <h1>Key is out</h1>
+ }
+
+
+Done — the heading in `src/App.jsx` now reads "Key is out". The dev server on port 8080 will hot-reload the change automatically.
+done 6s
+> 
+
+      the project has the new heading:           True
+      in the Sandbox's environment:              AUTHORIZATION_BEARER=added-outside
+      the model, asked from inside with no key:  200
+      example.com, from inside:                  200 <- egress is open
+
+ok    the turn ended well and the edit is in the project
+ok    no proxy token in the Sandbox's environment
+ok    a request to the model with no key is answered: the key is added outside
