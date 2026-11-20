@@ -1,50 +1,50 @@
-# Chapter 0: create the scaffolding
+# Chapter 1: set up an endpoint
 
-Branch `ch0-setup`. Next: `ch1-endpoint`.
+Branch `ch1-endpoint`. Before: `ch0-setup`. Next: `ch2.1-sandbox`.
 
-You install Modal, log in, start a first Sandbox, and run the scaffolding: an
-interactive prompt that repeats what you type. It is the main loop that every
-later chapter adds to.
+The agent will need a model. You make a proxy token for your Environment, a
+Model Endpoint for Kimi K3, billed per token, and a Secret that holds the
+token. The code gains one line: `MODEL`, read from `ENDPOINT_URL`.
 
-## Set up
-
-You need [uv](https://docs.astral.sh/uv/) and git.
+## Set up, in this order
 
 ```sh
-uv tool install modal     # the `modal` command
-modal setup               # opens a browser to sign up or sign in
+modal workspace proxy-tokens create --name vibecoding-demo     # prints wk-… and ws-…, once
+modal workspace proxy-tokens allow wk-… <your Environment>
+export AUTHORIZATION_BEARER=wk-….ws-…                          # the id, a dot, the secret
+modal endpoint create --shared --model moonshotai/Kimi-K3 --name kimi-k3
+modal secret create model-token AUTHORIZATION_BEARER=$AUTHORIZATION_BEARER
+export ENDPOINT_URL=$(modal endpoint info kimi-k3 --json | jq -r .service_url)
 ```
 
-If uv warns that the tool is not in your path: `export PATH="$HOME/.local/bin:$PATH"`.
-
-A new account has one Environment, `main`: nothing to do. If you had an
-account already, make an Environment for the workshop, and name it in every
-terminal:
-
-```sh
-modal environment create vibecoding-demo
-export MODAL_ENVIRONMENT=vibecoding-demo
-export MODAL_PROFILE=personal     # only if you have several workspaces
-```
+- **Let the token into the Environment before you create the Endpoint.** The
+  other order fails with `Create a proxy token to require authentication…`.
+- **Every terminal needs `ENDPOINT_URL` from here on.** Without it the code
+  stops with `KeyError: 'ENDPOINT_URL'`. Without `jq`, copy the URL by hand.
 
 ## Run it
 
 ```sh
-modal shell -c 'echo hello from a Sandbox; echo $MODAL_SANDBOX_ID'
-cd code
-uv run vibecode.py chat alice
+curl $ENDPOINT_URL/v1/chat/completions \
+  -H "Authorization: Bearer $AUTHORIZATION_BEARER" \
+  -d '{"messages": [{"role": "user", "content": "Say hello in one word"}]}'
+curl $ENDPOINT_URL/v1/chat/completions \
+  -d '{"messages": [{"role": "user", "content": "Say hello in one word"}]}'
 ```
 
-The first command prints `hello from a Sandbox` and an id, `sb-…`: Modal
-started a Sandbox in your Environment, ran the command in it, and ended it.
-Then type `hello` at the prompt and it answers `alice said: hello`. An empty
-line ends the chat.
+With the token, the model answers in JSON, with `"model":"moonshotai/Kimi-K3"`.
+Without it, the answer is `{"error":"proxy auth required"}`.
 
 ## Test it
 
 ```sh
-uv run checks/ch0_setup.py     # from the repository root
+uv run checks/ch1_endpoint.py     # from the repository root
 ```
 
-Done when the Sandbox answers from the workspace and Environment you meant to
-use.
+Done when the first call answers 200 and the second 401.
+
+## See what changed
+
+```sh
+git diff ch0-setup ch1-endpoint -- code
+```

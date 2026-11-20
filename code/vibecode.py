@@ -5,7 +5,12 @@
 The starting point: a prompt that reads messages. Each chapter puts more of Modal behind it.
 """
 
+import os
 import sys
+
+# The Model Endpoint the agent calls, by its host name: its URL without the https://.
+#   $ export ENDPOINT_URL=$(modal endpoint info kimi-k3 --json | jq -r .service_url)
+MODEL = os.environ["ENDPOINT_URL"].removeprefix("https://")
 
 
 def ask():

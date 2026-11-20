@@ -1,0 +1,10 @@
+model      nicolaslara-vibecoding-demo--ep-kimi-k3-server.us-west.modal.direct
+called at  https://inference.us-west.modal.direct/v1
+
+a Sandbox that holds the Secret, calling the model
+      with-key     200 pong
+      without-key  401 {"error":"proxy auth required"}
+
+ok    the Secret model-token exists in this Environment
+ok    with the key, the model answers 200
+ok    without the key, the gateway answers 401
