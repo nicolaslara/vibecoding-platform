@@ -1,6 +1,6 @@
 """A vibecoding app on Modal Sandboxes: one Sandbox per user, with a coding agent inside.
 
-    uv run vibecode.py chat alice    # starts alice's Sandbox, then type one message per line
+    uv run vibecode.py chat alice    # open the link it prints, then type one message per line
     uv run vibecode.py reset alice   # start over from the template
 
 Each user gets a Sandbox named after them. Its main process is the dev server of their app. The
@@ -60,6 +60,15 @@ def boot(user):
     return sandbox
 
 
+def preview(sandbox, user):
+    """The link to the user's app.
+
+    It is the address of this one Sandbox, with a connect token in it, because no port is public.
+    """
+    access = sandbox.create_connect_token(user_metadata={"user": user})
+    return f"{access.url}/?_modal_connect_token={access.token}"
+
+
 def ask():
     """A line from the user. An empty line, EOF or Ctrl-C ends the chat."""
     try:
@@ -72,10 +81,7 @@ def ask():
 def chat(user):
     """Read messages, one per line."""
     sandbox = boot(user)
-    for line in sandbox.stdout:  # the dev server's output, until it says where it listens
-        if "Local:" in line:
-            print(line.strip())
-            break
+    print("open", preview(sandbox, user))
 
     while message := ask():
         print(f"{user} said: {message}")

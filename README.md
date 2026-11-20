@@ -1,11 +1,10 @@
-# Chapter 2, step 3: let's run an actual web app
+# Chapter 2, step 4: a private link, for the browser
 
-Branch `ch2.3-image`. Before: `ch2.2-name`. Next: `ch2.4-connect`.
+Branch `ch2.4-connect`. Before: `ch2.3-image`. Next: `ch2.5-probe`.
 
-The Sandbox starts from our own Image, built once and cached, with the app
-template in `code/app` and its packages installed. The command we pass to
-`Sandbox.create`, `npm run dev`, runs as its main process: the template's dev
-server. `chat` prints the line where the dev server says it listens.
+A connect token is a URL and a token for one port of one Sandbox. `preview`
+asks Modal for one, for port 8080, and `chat` prints the two as one link that
+only opens this user's Sandbox.
 
 ## Run it
 
@@ -13,14 +12,10 @@ server. `chat` prints the line where the dev server says it listens.
 cd code
 uv run vibecode.py reset alice
 uv run vibecode.py chat alice
-modal shell sb-…          # in a second terminal, with the Sandbox ID chat printed
-curl localhost:8080       # inside the Sandbox
 ```
 
-`chat` prints `new alice sb-…` and `➜ Local: http://localhost:8080/`. The
-first run builds the Image. Later runs find it built. Port 8080 has no address
-outside yet, so the test is a shell inside the running Sandbox: `curl` prints
-the page's HTML, starting with `<!doctype html>`.
+It prints `open https://….w.modal.host/?_modal_connect_token=…`. Open it: the
+template app is in your browser. Without the token, the URL answers 401.
 
 Every terminal needs `ENDPOINT_URL`, from chapter 1. After checking out this
 branch, reset the user first, so her Sandbox is one this branch made.
@@ -28,14 +23,13 @@ branch, reset the user first, so her Sandbox is one this branch made.
 ## Test it
 
 ```sh
-uv run checks/ch2_3_image.py     # from the repository root
+uv run checks/ch2_4_connect.py     # from the repository root
 ```
 
-Done when the template is inside the Sandbox and its main process says it
-serves on port 8080.
+Done when the link serves the template, and only with its token.
 
 ## See what changed
 
 ```sh
-git diff ch2.2-name ch2.3-image -- code
+git diff ch2.3-image ch2.4-connect -- code
 ```

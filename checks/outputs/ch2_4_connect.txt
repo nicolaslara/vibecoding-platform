@@ -1,0 +1,15 @@
+$ uv run vibecode.py reset check
+
+$ uv run vibecode.py chat check
+new check sb-01M7QQ2PT3QDTWWW7P1EZ72JDF
+open https://a-ta-01m7qq2pt3f21aes56t0zs13bv-irw6b-ah8ue4tj5mr3ch3yno5w64jll.w.modal.host/?_modal_connect_token=<token>
+> 
+
+      the link, with its token    200 after 0.9 s the page names /src/main.jsx: True
+      the link, without the token 401 
+
+$ uv run vibecode.py reset check
+
+ok    chat started a Sandbox and printed a link
+ok    the link serves the template app
+ok    without the token the link is refused
