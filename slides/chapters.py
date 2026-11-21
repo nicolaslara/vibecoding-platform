@@ -178,7 +178,8 @@ $ curl $ENDPOINT_URL/v1/chat/completions \\
             (
                 "Proxy token",
                 "Authorization: Bearer wk-….ws-…",
-                "The key for it. It works in its own workspace only, and must be let into the Environment.",
+                "The key for it. It works in its own workspace only. On Team and Enterprise plans it is also let into "
+                "an Environment.",
             ),
             (
                 "Model Endpoint",
@@ -194,14 +195,14 @@ $ curl $ENDPOINT_URL/v1/chat/completions \\
         ],
         steps=[
             dict(
-                title="A proxy token for our environment",
+                title="A proxy token",
                 commands="""# prints the id and the secret, once
 $ modal workspace proxy-tokens create --name vibecoding-demo
       wk-…   ws-…
-# a token must be let into an Environment before it works there
-$ modal workspace proxy-tokens allow wk-… vibecoding-demo
 # keep it for this terminal: the id, a dot, the secret
-$ export AUTHORIZATION_BEARER=wk-….ws-…""",
+$ export AUTHORIZATION_BEARER=wk-….ws-…
+# optional, Team or Enterprise plans only: let it into an Environment
+$ modal workspace proxy-tokens allow wk-… vibecoding-demo""",
                 shot=("proxy-token", "Settings → Proxy Tokens → New Token"),
             ),
             dict(
