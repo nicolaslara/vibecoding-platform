@@ -50,7 +50,8 @@ FUNCTION = "def"
 #              is a hidden slide: in the deck only when it is opened with ?hidden=1
 #   steps      things typed or clicked rather than coded: title, commands, and shot (screenshot name, where
 #              in the dashboard) or, for a step with no dashboard side, foot. A step with picture in place
-#              of commands is one image from slides/assets/shots, as large as the slide
+#              of commands is one image from slides/assets/shots, as large as the slide. commands given as a
+#              list are one box each, and a (tag, commands) pair is a box only some people need, under its tag
 #   state      where we are when the chapter starts, in place of problems: the left column of its first slide.
 #              A line is neutral, or ("ok", line) for what works, or ("no", line) for what does not
 #   tries      after the recorded run, things to type to test it by hand: title, commands and foot, as in steps.
@@ -178,8 +179,7 @@ $ curl $ENDPOINT_URL/v1/chat/completions \\
             (
                 "Proxy token",
                 "Authorization: Bearer wk-….ws-…",
-                "The key for it. It works in its own workspace only. On Team and Enterprise plans it is also let into "
-                "an Environment.",
+                "The key for it. It works in its own workspace only.",
             ),
             (
                 "Model Endpoint",
@@ -196,13 +196,18 @@ $ curl $ENDPOINT_URL/v1/chat/completions \\
         steps=[
             dict(
                 title="A proxy token",
-                commands="""# prints the id and the secret, once
+                commands=[
+                    """# prints the id and the secret, once
 $ modal workspace proxy-tokens create --name vibecoding-demo
       wk-…   ws-…
 # keep it for this terminal: the id, a dot, the secret
-$ export AUTHORIZATION_BEARER=wk-….ws-…
-# optional, Team or Enterprise plans only: let it into an Environment
+$ export AUTHORIZATION_BEARER=wk-….ws-…""",
+                    (
+                        "Team and Enterprise plans only",
+                        """# these plans scope tokens: let it into your Environment
 $ modal workspace proxy-tokens allow wk-… vibecoding-demo""",
+                    ),
+                ],
                 shot=("proxy-token", "Settings → Proxy Tokens → New Token"),
             ),
             dict(
@@ -1212,6 +1217,10 @@ CSS = """
   .ch-code pre.code { box-sizing: border-box; font-size: 13px; line-height: 18.5px; padding: 12px 16px; white-space: pre; overflow: hidden; }
   .ch-code pre.code { position: relative; }
   .ch-code pre.code[data-in]::after { content: attr(data-in); position: absolute; top: 5px; right: 14px; font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--semantic-text-tertiary); }
+  .ch-only { margin-top: 14px; }
+  .ch-only .ch-tag { display: inline-block; margin-bottom: 8px; padding: 3px 10px; border-radius: 4px; font-family: var(--font-mono);
+    font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--semantic-text-inverse); background: var(--semantic-text-warning); }
+  .ch-only pre.code { border: 1.5px dashed var(--semantic-text-warning); }
   .ch-code .ch-blocks, .ch-steps .ch-blocks { display: flex; flex-direction: column; gap: 11px; min-width: 0; }
   .ch-code .ln { border-radius: 0; }  /* lit lines that follow each other read as one block */
   .ch-code .ln.add { background: rgba(120, 200, 120, .17); }
@@ -1998,7 +2007,13 @@ def typed(ch, step, credits=False, notes="") -> str:
     boxes = step["commands"] if isinstance(step["commands"], list) else [step["commands"]]
     body = '<div class="ch-steps%s"><div class="ch-blocks">%s</div>%s</div>' % (
         (" wide" if step.get("wide") else "") if shown else " alone",
-        "".join('<pre class="code">%s</pre>' % shell(box) for box in boxes),
+        "".join(
+            '<pre class="code">%s</pre>' % shell(box)
+            if isinstance(box, str)
+            else '<div class="ch-only"><span class="ch-tag">%s</span><pre class="code">%s</pre></div>'
+            % (html.escape(box[0]), shell(box[1]))
+            for box in boxes
+        ),
         shot(*shown) if shown else "",
     )
     if credits:
